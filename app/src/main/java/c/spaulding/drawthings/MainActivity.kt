@@ -9,7 +9,10 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Canvas;
 import android.graphics.Bitmap;
+import android.util.Log
 import android.view.MotionEvent
+import android.view.MotionEvent.AXIS_X
+import android.view.MotionEvent.AXIS_Y
 import android.view.View
 import android.widget.ImageView
 
@@ -18,11 +21,14 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
-    val xNumberOfDots= 5f
-    val ROWSOFDOTS = 4
-    val COLUMNSOFDOTS = 5
+    val ROWSOFDOTS = 7
+    val COLUMNSOFDOTS = 8
+    var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS  )
+    val xNumberOfDots= 9f
+
      var bitmap :Bitmap ?= null
     var canvas: Canvas ?= null
+    var paint: Paint = Paint(Color.RED)
 
        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,35 +46,45 @@ class MainActivity : AppCompatActivity() {
             v, event ->  onTouchEvent(v, event)
            })
 
-
+        btn_SubmitMove.setOnClickListener{
+            drawGame()
+        }
     }
-    fun setUpGame(){
-       bitmap = Bitmap.createBitmap(iv.width,iv.height, Bitmap.Config.ARGB_8888)
-        this.canvas = Canvas(bitmap)
-       var paint : Paint = Paint(Color.RED)
 
-        paint.style=Paint.Style.STROKE
+    fun setUpGame() {
+        bitmap = Bitmap.createBitmap(iv.width, iv.height, Bitmap.Config.ARGB_8888)
+        this.canvas = Canvas(bitmap)
+
+
+        paint.style = Paint.Style.STROKE
         //Line Width in pixels
         paint.strokeWidth = 8f
-        paint.isAntiAlias=true
+        paint.isAntiAlias = true
 
 
-        var offset = 2f
+        var hSpace: Float = (canvas!!.height - 4) / xNumberOfDots
+        var wSpace: Float = (canvas!!.width - 4) / xNumberOfDots
 
-        var hSpace :Float = (canvas!!.height-4)/xNumberOfDots
-        var wSpace : Float = (canvas!!.width-4)/xNumberOfDots
-        for( i in 1..COLUMNSOFDOTS  ){
-            for (j in 1..ROWSOFDOTS)
-                canvas!!.drawCircle(i*wSpace,j* hSpace , 1f, paint)
+        //note This is set up wrong, I should be going rows -> columns
+        for (i in 1..ROWSOFDOTS) {
+            game.gameBoard.add(ArrayList<GameNode>())
+            for (j in 1..COLUMNSOFDOTS ) {
+                canvas!!.drawCircle(j * wSpace, i * hSpace, 1f, paint)
+                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace))
+            }
+            var mImageView: ImageView = findViewById(R.id.iv) as ImageView
+            mImageView.setImageBitmap(bitmap)
+
         }
-        var mImageView : ImageView = findViewById(R.id.iv) as ImageView
+    }
+    fun drawGame(){
+        this.canvas= game.drawBoard(canvas!!,paint)
+        var mImageView: ImageView = findViewById(R.id.iv) as ImageView
         mImageView.setImageBitmap(bitmap)
 
     }
 
-    fun drawGame(){
 
-    }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -76,9 +92,45 @@ class MainActivity : AppCompatActivity() {
         return true
 
     }
-
+//https://stackoverflow.com/questions/3148741/how-to-capture-finger-movement-direction-in-android-phone/3151831?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
     private fun onTouchEvent(view: View, event: MotionEvent ):Boolean {
-        event.action.
+    var x1  = 0f
+    var x2 = 0f
+    var y1 = 0f
+    var y2  = 0f
+    var dx = 0f
+    var dy = 0f
+    var direction  = ""
+
+        val threshold = 10;
+        when (event.action){
+            MotionEvent.ACTION_DOWN -> {
+                x1= event.x
+                y1= event.y
+                Log.i("X1","$x1")
+                Log.i("Y1", "$y1")
+            }
+
+            MotionEvent.ACTION_UP -> {
+                x2 = event.getAxisValue(AXIS_X,event.pointerCount-1)
+                y2 = event.getAxisValue(AXIS_Y, event.pointerCount-1)
+                Log.i("X2", "$x2")
+                Log.i("Y2", "$y2")
+                dx = x2-x1
+                dy = y2-y1
+
+                //why is this not working?
+                if(y1< y2){
+
+                    direction= direction + "down"
+                }
+                else {
+                    direction += "up"
+
+                }
+            }
+        }
+        Log.i("touch direction", direction)
         return drawLine(event.x,event.y)
     }
 
