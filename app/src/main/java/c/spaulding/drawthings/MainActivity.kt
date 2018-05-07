@@ -21,6 +21,12 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
+    var x1  = 0f
+    var x2 = 0f
+    var y1 = 0f
+    var y2  = 0f
+    var dx = 0f
+    var dy = 0f
     val ROWSOFDOTS = 4
     val COLUMNSOFDOTS = 5
     var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS  )
@@ -52,31 +58,32 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun setUpGame() {
+        //drawing
         bitmap = Bitmap.createBitmap(iv.width, iv.height, Bitmap.Config.ARGB_8888)
         this.canvas = Canvas(bitmap)
-
-
         paint.style = Paint.Style.STROKE
         //Line Width in pixels
         paint.strokeWidth = 8f
         paint.isAntiAlias = true
-
-
         var hSpace: Float = (canvas!!.height - 4) / dotSpacingValue
         var wSpace: Float = (canvas!!.width - 4) / dotSpacingValue
 
-        //note This is set up wrong, I should be going rows -> columns
+        //create nodes
         for (i in 1..ROWSOFDOTS) {
             game.gameBoard.add(ArrayList<GameNode>())
             for (j in 1..COLUMNSOFDOTS ) {
                 canvas!!.drawCircle(j * wSpace, i * hSpace, 1f, paint)
-                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace))
+                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace, false ,false))
             }
-            var mImageView: ImageView = findViewById(R.id.iv) as ImageView
-            mImageView.setImageBitmap(bitmap)
-
         }
+
+
+        var mImageView: ImageView = findViewById(R.id.iv) as ImageView
+        mImageView.setImageBitmap(bitmap)
+
+
     }
+    
     fun drawGame(){
         this.canvas= game.drawBoard(canvas!!,paint)
         var mImageView: ImageView = findViewById(R.id.iv) as ImageView
@@ -94,17 +101,11 @@ class MainActivity : AppCompatActivity() {
     }
 //https://stackoverflow.com/questions/3148741/how-to-capture-finger-movement-direction-in-android-phone/3151831?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
     private fun onTouchEvent(view: View, event: MotionEvent ):Boolean {
-   drawLineDown(3,3)
-    return false
-    var x1  = 0f
-    var x2 = 0f
-    var y1 = 0f
-    var y2  = 0f
-    var dx = 0f
-    var dy = 0f
+
+
+
     var direction  = ""
 
-        val threshold = 10;
         when (event.action){
             MotionEvent.ACTION_DOWN -> {
                 x1= event.x
@@ -121,12 +122,14 @@ class MainActivity : AppCompatActivity() {
                 dx = x2-x1
                 dy = y2-y1
 
-                //why is this not working?
+                //why are x1 and x2 not updateing correctly?
                 if(y1< y2){
+                    Log.i("y1<y2 x1", "$x1")
+                    Log.i("y: ", "$y1")
                    val ans =findClosestDot(x1,y1)
-                    drawLineDown(ans[0],ans[1])
-                    direction= direction + "down"
-
+                    this.canvas= game.drawLineDown(ans[0],ans[1], canvas!!,Paint(Color.BLACK))
+                            direction= direction + "down"
+                    drawGame()
                 }
                 else {
                     direction += "up"
@@ -138,12 +141,7 @@ class MainActivity : AppCompatActivity() {
         return drawLine(event.x,event.y)
     }
 
-    fun drawLineDown(PosX: Int, PosY :Int){
-        game.gameBoard.get(PosX).get(PosY).lineDown=true
-    }
-    fun drawLineAccross(PosX: Int, PosY: Int){
-        game.gameBoard.get(PosX).get(PosY).lineRight=true
-    }
+
 
      fun drawLine(x: Float, y : Float ) : Boolean{
 
@@ -160,6 +158,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    //getting wrong values
     fun findClosestDot(x :Float, y :Float) : Array<Int> {
         val ySpace = (iv.height/dotSpacingValue).toInt()
         val xSpace = (iv.width/dotSpacingValue).toInt()
@@ -169,9 +169,12 @@ class MainActivity : AppCompatActivity() {
         while(!yfound){
             if(y<i*ySpace){
                 yfound=true
-                yLevel=i
+                yLevel=i-1
             }
             i++
+            if(i==100)
+                yfound=true
+                yLevel=0
         }
         var xfound = false;
         i=-1
@@ -179,9 +182,16 @@ class MainActivity : AppCompatActivity() {
         while(!xfound){
             if(x<i*xSpace){
                 xfound=true
-                xLevel=i
+                xLevel=i-1
+            }
+            i++
+            if(i==100){
+                xfound=true
+                xLevel=0
             }
         }
+        Log.i("xLevel", "$xLevel")
+        Log.i("yLevel", "$yLevel")
         return arrayOf(xLevel,yLevel)
     }
 
