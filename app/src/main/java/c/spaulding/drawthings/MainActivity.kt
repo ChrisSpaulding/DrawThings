@@ -21,10 +21,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
-    val ROWSOFDOTS = 7
-    val COLUMNSOFDOTS = 8
+    val ROWSOFDOTS = 4
+    val COLUMNSOFDOTS = 5
     var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS  )
-    val xNumberOfDots= 9f
+    val dotSpacingValue= 6f
 
      var bitmap :Bitmap ?= null
     var canvas: Canvas ?= null
@@ -62,8 +62,8 @@ class MainActivity : AppCompatActivity() {
         paint.isAntiAlias = true
 
 
-        var hSpace: Float = (canvas!!.height - 4) / xNumberOfDots
-        var wSpace: Float = (canvas!!.width - 4) / xNumberOfDots
+        var hSpace: Float = (canvas!!.height - 4) / dotSpacingValue
+        var wSpace: Float = (canvas!!.width - 4) / dotSpacingValue
 
         //note This is set up wrong, I should be going rows -> columns
         for (i in 1..ROWSOFDOTS) {
@@ -94,6 +94,8 @@ class MainActivity : AppCompatActivity() {
     }
 //https://stackoverflow.com/questions/3148741/how-to-capture-finger-movement-direction-in-android-phone/3151831?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
     private fun onTouchEvent(view: View, event: MotionEvent ):Boolean {
+   drawLineDown(3,3)
+    return false
     var x1  = 0f
     var x2 = 0f
     var y1 = 0f
@@ -121,8 +123,10 @@ class MainActivity : AppCompatActivity() {
 
                 //why is this not working?
                 if(y1< y2){
-
+                   val ans =findClosestDot(x1,y1)
+                    drawLineDown(ans[0],ans[1])
                     direction= direction + "down"
+
                 }
                 else {
                     direction += "up"
@@ -132,6 +136,13 @@ class MainActivity : AppCompatActivity() {
         }
         Log.i("touch direction", direction)
         return drawLine(event.x,event.y)
+    }
+
+    fun drawLineDown(PosX: Int, PosY :Int){
+        game.gameBoard.get(PosX).get(PosY).lineDown=true
+    }
+    fun drawLineAccross(PosX: Int, PosY: Int){
+        game.gameBoard.get(PosX).get(PosY).lineRight=true
     }
 
      fun drawLine(x: Float, y : Float ) : Boolean{
@@ -147,6 +158,31 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun findClosestDot(x :Float, y :Float) : Array<Int> {
+        val ySpace = (iv.height/dotSpacingValue).toInt()
+        val xSpace = (iv.width/dotSpacingValue).toInt()
+        var yfound = false;
+        var i=1
+        var yLevel=-1
+        while(!yfound){
+            if(y<i*ySpace){
+                yfound=true
+                yLevel=i
+            }
+            i++
+        }
+        var xfound = false;
+        i=-1
+        var xLevel= -1
+        while(!xfound){
+            if(x<i*xSpace){
+                xfound=true
+                xLevel=i
+            }
+        }
+        return arrayOf(xLevel,yLevel)
     }
 
 

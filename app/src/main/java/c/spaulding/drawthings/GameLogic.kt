@@ -22,7 +22,7 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
             for (j in 0..COLUMNSOFDOTS-1 ) {
                 canvas.drawCircle(gameBoard.get(i).get(j).nodeX, gameBoard.get(i).get(j).nodeY, 1f, paint)
 
-                if(gameBoard.get(i).get(j).lineDown){
+                if(!gameBoard.get(i).get(j).lineDown){
                     canvas.drawLine(gameBoard.get(i).get(j).nodeX, gameBoard.get(i).get(j).nodeY, gameBoard.get(i+1).get(j).nodeX   , gameBoard.get(i+1).get(j).nodeY, paint)  }
             }
 
@@ -30,7 +30,7 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
 
         for (i in 0..ROWSOFDOTS-1){
             for(j in 0..COLUMNSOFDOTS-2){
-                if(gameBoard.get(i).get(j).lineRight)
+                if(!gameBoard.get(i).get(j).lineRight)
                      canvas.drawLine(gameBoard.get(i).get(j).nodeX, gameBoard.get(i).get(j).nodeY, gameBoard.get(i).get(j+1).nodeX, gameBoard.get(i).get(j+1).nodeY, paint)
             }
         }
