@@ -168,7 +168,7 @@ class MainActivity : AppCompatActivity() {
         var yLevel=-1
         while(!yfound){
             if(y<i*ySpace){
-                yfound=true
+                yfound=true   
                 yLevel=i-1
             }
             i++
