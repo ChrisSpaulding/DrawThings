@@ -13,9 +13,14 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
     var player1Score : Int = 0
     var player2Score : Int = 0
 
+/*
+* TODO Save and restore from file
+*
+* TODO experiment with bluetooth? - probably not going to happen
+ */
 
 
-    //need to test this function
+    //works
     public fun drawBoard(canvas : Canvas, paint: Paint) : Canvas
     {
 
@@ -53,7 +58,7 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
     return canvas
     }
 
-
+    //runs through all nodes that can hold a score and adjusts points scored
     fun updateGameScores() : Array<Int> {
         this.player1Score = 0
         this.player2Score = 0

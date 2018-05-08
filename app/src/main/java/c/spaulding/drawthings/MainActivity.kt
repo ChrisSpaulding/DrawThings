@@ -21,6 +21,11 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
+    /*
+    ToDO here let players set custom colors
+
+     */
+
     var currentPlayer =1
     var x1  = -1f
     var x2 = -1f
