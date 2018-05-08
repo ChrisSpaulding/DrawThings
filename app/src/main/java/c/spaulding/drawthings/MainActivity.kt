@@ -21,12 +21,13 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
 class MainActivity : AppCompatActivity() {
-    var x1  = 0f
-    var x2 = 0f
-    var y1 = 0f
-    var y2  = 0f
-    var dx = 0f
-    var dy = 0f
+    var currentPlayer =1
+    var x1  = -1f
+    var x2 = -1f
+    var y1 = -1f
+    var y2  = -1f
+    var dir = 0
+
     val ROWSOFDOTS = 4
     val COLUMNSOFDOTS = 5
     var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS  )
@@ -34,19 +35,18 @@ class MainActivity : AppCompatActivity() {
 
      var bitmap :Bitmap ?= null
     var canvas: Canvas ?= null
-    var paint: Paint = Paint(Color.RED)
+    var paint: Paint = Paint(Color.BLACK)
+
+
 
        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+        btn_Undo.visibility = View.INVISIBLE
 
         fab.setOnClickListener {
             setUpGame()
-
-            //canvas.drawLine(offset,canvas.height/2f,canvas.width/2f, canvas.width-offset, paint)
-        //this is what gets it to show
-
         }
         iv.setOnTouchListener(View.OnTouchListener() {
             v, event ->  onTouchEvent(v, event)
@@ -54,9 +54,22 @@ class MainActivity : AppCompatActivity() {
 
         btn_SubmitMove.setOnClickListener{
             drawGame()
+            x1=-1.0f
+            x2=-1.0f
+            btn_Undo.visibility= View.INVISIBLE
+        }
+        btn_Undo.setOnClickListener{
+            undoLastMove(dir)
+            setUpGame()
+            dir=0
+            x1=-1f
+            x2=-1f
+            drawGame()
+
         }
     }
 
+    //must be called first after the view has been drawn. This sets up the game with the correct number of rows and columns
     fun setUpGame() {
         //drawing
         bitmap = Bitmap.createBitmap(iv.width, iv.height, Bitmap.Config.ARGB_8888)
@@ -73,7 +86,7 @@ class MainActivity : AppCompatActivity() {
             game.gameBoard.add(ArrayList<GameNode>())
             for (j in 1..COLUMNSOFDOTS ) {
                 canvas!!.drawCircle(j * wSpace, i * hSpace, 1f, paint)
-                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace, false ,false))
+                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace, false ,false, 0))
             }
         }
 
@@ -81,11 +94,11 @@ class MainActivity : AppCompatActivity() {
         var mImageView: ImageView = findViewById(R.id.iv) as ImageView
         mImageView.setImageBitmap(bitmap)
 
-
     }
-    
+
+    //should refresh the game board based on the current canvas
     fun drawGame(){
-        this.canvas= game.drawBoard(canvas!!,paint)
+        this.canvas= game.drawBoard(canvas!!,paint= Paint( Color.BLUE))
         var mImageView: ImageView = findViewById(R.id.iv) as ImageView
         mImageView.setImageBitmap(bitmap)
 
@@ -99,54 +112,49 @@ class MainActivity : AppCompatActivity() {
         return true
 
     }
-//https://stackoverflow.com/questions/3148741/how-to-capture-finger-movement-direction-in-android-phone/3151831?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa
+
+    //captures two sequential touch events
     private fun onTouchEvent(view: View, event: MotionEvent ):Boolean {
+    when (event.action) {
+        MotionEvent.ACTION_DOWN -> {
+            if (x1>-1 && x2<0) {
+
+                x2 = event.x
+                y2 = event.y
 
 
-
-    var direction  = ""
-
-        when (event.action){
-            MotionEvent.ACTION_DOWN -> {
-                x1= event.x
-                y1= event.y
-                Log.i("X1","$x1")
-                Log.i("Y1", "$y1")
-            }
-
-            MotionEvent.ACTION_UP -> {
-                x2 = event.getAxisValue(AXIS_X,event.pointerCount-1)
-                y2 = event.getAxisValue(AXIS_Y, event.pointerCount-1)
-                Log.i("X2", "$x2")
-                Log.i("Y2", "$y2")
-                dx = x2-x1
-                dy = y2-y1
-
-                //why are x1 and x2 not updateing correctly?
-                if(y1< y2){
-                    Log.i("y1<y2 x1", "$x1")
-                    Log.i("y: ", "$y1")
-                   val ans =findClosestDot(x1,y1)
-                    this.canvas= game.drawLineDown(ans[0],ans[1], canvas!!,Paint(Color.BLACK))
-                            direction= direction + "down"
-                    drawGame()
+                val temp2 = findClosestDot(x1,y1)
+                if(closeDoubleTap()){
+                    btn_Undo.visibility= View.INVISIBLE
+                    scoreBox(temp2[0], temp2[1])
                 }
-                else {
-                    direction += "up"
+                else{
+                Log.i("first tap x","${temp2[0]}")
+                Log.i("first tap y", "${temp2[1]}")
+                dir = findDirection()
+                //storing this for easy undo
+                x1=temp2[0].toFloat()
+                y1= temp2[1].toFloat()
+                drawLine(temp2[0],temp2[1],dir)}
+                drawGame()
 
-                }
+
             }
+            if (x1<0) {
+                x1 = event.x
+                y1 = event.y
+                Log.i("X1 tap", "$x1")
+                Log.i("Y1 tap ", "$y1")
+            }
+            return true
         }
-        Log.i("touch direction", direction)
-        return drawLine(event.x,event.y)
+
     }
+    return false
+}
 
 
 
-     fun drawLine(x: Float, y : Float ) : Boolean{
-
-         return true
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
@@ -159,25 +167,28 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    //getting wrong values
+    // function that finds the dot that is below and to the right of the touch
     fun findClosestDot(x :Float, y :Float) : Array<Int> {
         val ySpace = (iv.height/dotSpacingValue).toInt()
         val xSpace = (iv.width/dotSpacingValue).toInt()
         var yfound = false;
-        var i=1
+        var i=0
         var yLevel=-1
+        Log.i("tap Y Space", "$ySpace")
         while(!yfound){
-            if(y<i*ySpace){
-                yfound=true   
+            Log.i("tap if controll", "y: $y i: $i ySpace: $ySpace")
+            if(y <i*ySpace){
+                yfound=true
                 yLevel=i-1
             }
             i++
-            if(i==100)
+            if(i==100){
                 yfound=true
-                yLevel=0
+                yLevel=-1
+            }
         }
         var xfound = false;
-        i=-1
+        i=0
         var xLevel= -1
         while(!xfound){
             if(x<i*xSpace){
@@ -187,15 +198,76 @@ class MainActivity : AppCompatActivity() {
             i++
             if(i==100){
                 xfound=true
-                xLevel=0
+                xLevel=-1
             }
         }
         Log.i("xLevel", "$xLevel")
         Log.i("yLevel", "$yLevel")
+        if(yLevel>=ROWSOFDOTS){
+            yLevel=ROWSOFDOTS-1
+        }
+        if(xLevel>=COLUMNSOFDOTS){
+            xLevel=COLUMNSOFDOTS-1
+        }
+        btn_Undo.visibility = View.VISIBLE
         return arrayOf(xLevel,yLevel)
     }
 
+    //Deturmins if a line should be drown down or accross 1 for a line to the right -1 for a line down
+    fun findDirection():Int{
+        var dx = x1-x2
+        var dy =y1-y2
 
+        dx = Math.abs(dx)
+        dy = Math.abs(dy)
+        if(dx>dy){
+            return 1
+        }
+        else{
+            return -1
+        }
+    }
+
+    //adds a line that should be drawn to the gameboard.
+    fun drawLine(x:Int, y: Int, dir : Int){
+
+        if(dir<0){
+            game.gameBoard[y][x].lineDown=true
+        }
+        else{
+            game.gameBoard[y][x].lineRight=true
+        }
+    }
+
+    //only undoes lines will not kill program when it is an option
+    fun undoLastMove(dir : Int){
+        if( x1<0){
+
+        }
+        else {
+            if(dir<0){
+                Log.i("tap Direction down", "y1= $y1 x1= $x1")
+                game.gameBoard[y1.toInt()][x1.toInt()].lineDown=false
+                Log.i("dot state tap", "${game.gameBoard[y1.toInt()][x1.toInt()].lineDown}")
+            }
+            else{
+                game.gameBoard[y1.toInt()][x1.toInt()].lineRight=false
+            }
+        }
+        btn_Undo.visibility = View.INVISIBLE
+        drawGame()
+    }
+
+
+    fun closeDoubleTap(): Boolean{
+
+        return (Math.abs(x2-x1)<50&& Math.abs(y2-y1)<50)
+    }
+    //will take in a node position and then
+    fun scoreBox(x :Int, y: Int){
+        game.gameBoard[y][x].playerScored=currentPlayer
+
+    }
 
 
 }

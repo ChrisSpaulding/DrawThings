@@ -1,6 +1,7 @@
 package c.spaulding.drawthings
 
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.util.Log
 import android.widget.ImageView
@@ -32,6 +33,20 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
             for(j in 0..COLUMNSOFDOTS-2){
                 if(gameBoard.get(i).get(j).lineRight)
                      canvas.drawLine(gameBoard.get(i).get(j).nodeX, gameBoard.get(i).get(j).nodeY, gameBoard.get(i).get(j+1).nodeX, gameBoard.get(i).get(j+1).nodeY, paint)
+            }
+        }
+
+        for(i in 1 until ROWSOFDOTS){
+            for (j in 1 until COLUMNSOFDOTS){
+                if(gameBoard[i][j].playerScored==1){
+                    paint.color= Color.RED
+                    canvas.drawRect(gameBoard[i][j-1].nodeX,gameBoard[i-1][j].nodeY,gameBoard[i][j].nodeX,gameBoard[i][j].nodeY,paint)
+                }
+                if(gameBoard[i][j].playerScored==2){
+                    paint.color = Color.BLUE
+                    canvas.drawRect(gameBoard[i][j-1].nodeX,gameBoard[i-1][j].nodeY,gameBoard[i][j].nodeX,gameBoard[i][j].nodeY,  Paint(Color.RED))
+
+                }
             }
         }
 

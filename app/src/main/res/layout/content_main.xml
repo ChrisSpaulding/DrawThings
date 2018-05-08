@@ -29,4 +29,12 @@
         android:text="Submit Move?"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btn_Undo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Undo 1 Move"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btn_SubmitMove"
+        app:layout_constraintStart_toEndOf="@+id/btn_SubmitMove" />
 </android.support.constraint.ConstraintLayout>
