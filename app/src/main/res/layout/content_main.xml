@@ -28,13 +28,65 @@
         android:layout_marginStart="16dp"
         android:text="Submit Move?"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_player1score" />
 
     <Button
         android:id="@+id/btn_Undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="17dp"
         android:text="Undo 1 Move"
-        app:layout_constraintBaseline_toBaselineOf="@+id/btn_SubmitMove"
-        app:layout_constraintStart_toEndOf="@+id/btn_SubmitMove" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_SubmitMove"
+        app:layout_constraintTop_toBottomOf="@+id/txt_player2score" />
+
+    <ToggleButton
+        android:id="@+id/btn_Player"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="122dp"
+        android:layout_marginStart="1dp"
+        android:textOff="Player 1"
+        android:textOn="Player 2"
+        app:layout_constraintEnd_toStartOf="@+id/txt_player2score"
+        app:layout_constraintStart_toEndOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/iv"
+        tools:text="Player1" />
+
+    <TextView
+        android:id="@+id/txt_player1score"
+        android:layout_width="113dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="403dp"
+        android:layout_marginEnd="8dp"
+        android:text="player 1 score"
+        app:layout_constraintBottom_toTopOf="@+id/btn_SubmitMove"
+        app:layout_constraintEnd_toStartOf="@+id/txt_player2score"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="player 1 score" />
+
+    <TextView
+        android:id="@+id/txt_player2score"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="401dp"
+        android:layout_marginEnd="46dp"
+        android:text="player 2 score"
+        app:layout_constraintBottom_toTopOf="@+id/btn_Undo"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/btn_Player"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="player 2 score" />
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toStartOf="@+id/btn_Player"
+        app:layout_constraintGuide_begin="20dp"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </android.support.constraint.ConstraintLayout>

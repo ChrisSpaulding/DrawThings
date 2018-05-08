@@ -5,10 +5,10 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Canvas;
-import android.graphics.Bitmap;
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Canvas
+import android.graphics.Bitmap
 import android.util.Log
 import android.view.MotionEvent
 import android.view.MotionEvent.AXIS_X
@@ -65,8 +65,17 @@ class MainActivity : AppCompatActivity() {
             x1=-1f
             x2=-1f
             drawGame()
-
         }
+
+           btn_Player.setOnClickListener{
+               if(btn_Player.isChecked){
+                   currentPlayer=2
+                   Log.i("is checked","player 2: $currentPlayer")
+               }else{
+                   currentPlayer=1
+                   Log.i("is not checked","player 1: $currentPlayer")
+               }
+           }
     }
 
     //must be called first after the view has been drawn. This sets up the game with the correct number of rows and columns
@@ -263,9 +272,17 @@ class MainActivity : AppCompatActivity() {
 
         return (Math.abs(x2-x1)<50&& Math.abs(y2-y1)<50)
     }
-    //will take in a node position and then
+
+    //will take in a node position and then score it for a player
     fun scoreBox(x :Int, y: Int){
         game.gameBoard[y][x].playerScored=currentPlayer
+        pointUpdate()
+    }
+
+    fun pointUpdate(){
+         var temp = game.updateGameScores()
+        txt_player1score.text = "P1: ${temp[0]}"
+        txt_player2score.text= "P2: ${temp[1]}"
 
     }
 

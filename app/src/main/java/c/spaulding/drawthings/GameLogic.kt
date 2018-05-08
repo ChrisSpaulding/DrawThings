@@ -54,15 +54,21 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
     }
 
 
-    fun drawLineDown(PosX: Int, PosY :Int, canvas : Canvas, paint: Paint):Canvas{
-        this.gameBoard.get(PosX).get(PosY).lineDown=true
-        return this.drawBoard(canvas,paint)
+    fun updateGameScores() : Array<Int> {
+        this.player1Score = 0
+        this.player2Score = 0
+        for (i in 1 until ROWSOFDOTS) {
+            for (j in 1 until COLUMNSOFDOTS) {
+                if (gameBoard[i][j].playerScored == 1) {
+                    player1Score = player1Score + 1
+                }
+                if (gameBoard[i][j].playerScored == 2) {
+                    player2Score = player2Score +1
+                }
+            }
+        }
+
+        return arrayOf(player1Score, player2Score)
     }
-    fun drawLineAccross(PosX: Int, PosY: Int){
-        this.gameBoard.get(PosX).get(PosY).lineRight=true
-    }
-
-
-
 
 }
