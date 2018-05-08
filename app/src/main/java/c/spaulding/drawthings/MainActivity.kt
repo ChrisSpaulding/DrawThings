@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     val ROWSOFDOTS = 4
     val COLUMNSOFDOTS = 5
-    var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS  )
+    var game : GameLogic = GameLogic(ArrayList<ArrayList<GameNode>>(),ROWSOFDOTS,COLUMNSOFDOTS, this  )
     val dotSpacingValue= 6f
 
      var bitmap :Bitmap ?= null

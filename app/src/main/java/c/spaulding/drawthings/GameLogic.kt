@@ -1,14 +1,22 @@
 package c.spaulding.drawthings
 
+import android.app.Activity
+import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.preference.PreferenceManager
 import android.util.Log
 import android.widget.ImageView
+import com.google.gson.Gson
 
 
-public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWSOFDOTS : Int, val COLUMNSOFDOTS :Int  ){
+public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWSOFDOTS : Int, val COLUMNSOFDOTS :Int, val context: Context  ){
+    var id = 1554
     val xNumberOfDots= 5f
+    val PREF_NAME= "c.spaulding.drawthings.GameLogic"
+
 
     var player1Score : Int = 0
     var player2Score : Int = 0
@@ -74,6 +82,38 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
         }
 
         return arrayOf(player1Score, player2Score)
+    }
+
+//need to test 
+    //this should save the game as is
+    //dzond.com/articles/storing-objects-android
+    fun saveGame(){
+       // convert to Json object
+        var gson: Gson = Gson()
+        var user_json: String = gson.toJson(this)
+
+
+        //store in SharedPreference
+        var id = "" + id
+
+        var sharedPreferences : SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val sharedPreference = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE)
+        with(sharedPreference.edit()){
+            putString(id,user_json)
+            apply()
+        }
+    }
+
+    //this should restore the game?
+//need to test
+    fun restoreGame(){
+        var sharedPreferences : SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val sharedPreference = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE)
+        var gson :  Gson = Gson()
+        var user_json = sharedPreference.getString(id.toString(),"")
+        var oldGame = gson.fromJson( user_json, this.javaClass)
+        this.gameBoard = oldGame.gameBoard
+
     }
 
 }
