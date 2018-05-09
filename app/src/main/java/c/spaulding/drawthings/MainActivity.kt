@@ -51,7 +51,13 @@ class MainActivity : AppCompatActivity() {
         btn_Undo.visibility = View.INVISIBLE
 
         fab.setOnClickListener {
+
             setUpGame()
+            if(gameHasData()){
+                Log.i("game data", "game has data")
+                game.clearBoard()
+                drawGame()
+            }
         }
         iv.setOnTouchListener(View.OnTouchListener() {
             v, event ->  onTouchEvent(v, event)
@@ -85,6 +91,7 @@ class MainActivity : AppCompatActivity() {
 
     //must be called first after the view has been drawn. This sets up the game with the correct number of rows and columns
     fun setUpGame() {
+
         //drawing
         bitmap = Bitmap.createBitmap(iv.width, iv.height, Bitmap.Config.ARGB_8888)
         this.canvas = Canvas(bitmap)
@@ -96,14 +103,17 @@ class MainActivity : AppCompatActivity() {
         var wSpace: Float = (canvas!!.width - 4) / dotSpacingValue
 
         //create nodes
-        for (i in 1..ROWSOFDOTS) {
-            game.gameBoard.add(ArrayList<GameNode>())
-            for (j in 1..COLUMNSOFDOTS ) {
-                canvas!!.drawCircle(j * wSpace, i * hSpace, 1f, paint)
-                game.gameBoard.get(i-1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace, false ,false, 0))
+
+        if(game.gameBoard.size<1) {
+            Log.i("Size of gameBoard", "${game.gameBoard.size}")
+            for (i in 1..ROWSOFDOTS) {
+                game.gameBoard.add(ArrayList<GameNode>())
+                for (j in 1..COLUMNSOFDOTS) {
+                    canvas!!.drawCircle(j * wSpace, i * hSpace, 1f, paint)
+                    game.gameBoard.get(i - 1).add(GameNode(j * wSpace, i * hSpace, wSpace, hSpace, false, false, 0))
+                }
             }
         }
-
 
         var mImageView: ImageView = findViewById(R.id.iv) as ImageView
         mImageView.setImageBitmap(bitmap)
@@ -288,7 +298,19 @@ class MainActivity : AppCompatActivity() {
          var temp = game.updateGameScores()
         txt_player1score.text = "P1: ${temp[0]}"
         txt_player2score.text= "P2: ${temp[1]}"
+    }
 
+    fun gameHasData():Boolean{
+        for (i in 0 until ROWSOFDOTS){
+            for(j in 0 until COLUMNSOFDOTS){
+                if(game.gameBoard[i][j].lineRight==true||
+                game.gameBoard[i][j].lineDown==true||
+                !(game.gameBoard[i][j].playerScored==0)){
+                    return true
+                }
+            }
+        }
+        return false
     }
 
 

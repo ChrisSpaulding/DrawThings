@@ -31,6 +31,12 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
     //works
     public fun drawBoard(canvas : Canvas, paint: Paint) : Canvas
     {
+        //does not work atm
+        for (i in   1 ..ROWSOFDOTS) {
+            for (j in 1 ..COLUMNSOFDOTS) {
+                canvas.drawCircle(j * gameBoard[0][0].lineXSize, i * gameBoard[0][0].lineYSize, 6f, paint)
+            }
+        }
 
         for (i in 0..ROWSOFDOTS-2) {
             for (j in 0..COLUMNSOFDOTS-1 ) {
@@ -84,7 +90,7 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
         return arrayOf(player1Score, player2Score)
     }
 
-//need to test 
+//need to test
     //this should save the game as is
     //dzond.com/articles/storing-objects-android
     fun saveGame(){
@@ -105,7 +111,7 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
     }
 
     //this should restore the game?
-//need to test
+    //need to test
     fun restoreGame(){
         var sharedPreferences : SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val sharedPreference = context.getSharedPreferences(PREF_NAME,Context.MODE_PRIVATE)
@@ -114,6 +120,17 @@ public class GameLogic (var gameBoard : ArrayList<ArrayList<GameNode>>, val ROWS
         var oldGame = gson.fromJson( user_json, this.javaClass)
         this.gameBoard = oldGame.gameBoard
 
+    }
+
+    //function to clear game.
+    fun clearBoard(){
+        for (i in 0 until ROWSOFDOTS){
+            for(j in 0 until COLUMNSOFDOTS){
+                gameBoard[i][j].lineRight=false
+                gameBoard[i][j].lineDown=false
+                gameBoard[i][j].playerScored=0
+            }
+        }
     }
 
 }
